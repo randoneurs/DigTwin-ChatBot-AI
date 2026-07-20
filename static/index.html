@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Amora — Love Chatbot</title>
+<title>MarketSight — Your strategic assistance!</title>
 <style>
   :root {
-    --pink-1: #ff8fab;
-    --pink-2: #ffc2d1;
-    --pink-3: #fff0f3;
-    --purple: #b388eb;
-    --text-dark: #4a2c3a;
+    --navy-1: #0f2247;
+    --navy-2: #1c3d73;
+    --navy-3: #eef2fa;
+    --steel: #3f6fb8;
+    --text-dark: #16233f;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: linear-gradient(160deg, var(--pink-3), var(--pink-2) 60%, var(--purple));
+    background: linear-gradient(160deg, var(--navy-3), var(--steel) 60%, var(--navy-1));
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -28,7 +28,7 @@
     max-width: 480px;
     background: #fff;
     border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(179, 136, 235, 0.35);
+    box-shadow: 0 20px 50px rgba(15, 34, 71, 0.35);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -36,7 +36,7 @@
     max-height: 700px;
   }
   header {
-    background: linear-gradient(120deg, var(--pink-1), var(--purple));
+    background: linear-gradient(120deg, var(--navy-1), var(--steel));
     color: white;
     padding: 18px 20px;
     display: flex;
@@ -81,7 +81,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background: var(--pink-3);
+    background: var(--navy-3);
   }
   .msg {
     max-width: 78%;
@@ -94,7 +94,7 @@
   }
   .msg.user {
     align-self: flex-end;
-    background: var(--purple);
+    background: var(--navy-2);
     color: white;
     border-bottom-right-radius: 4px;
   }
@@ -102,14 +102,14 @@
     align-self: flex-start;
     background: white;
     color: var(--text-dark);
-    border: 1px solid var(--pink-2);
+    border: 1px solid #c9d6ea;
     border-bottom-left-radius: 4px;
   }
   .msg.typing {
     align-self: flex-start;
     background: white;
-    border: 1px solid var(--pink-2);
-    color: #b98a9a;
+    border: 1px solid #c9d6ea;
+    color: #6b7fa3;
     font-style: italic;
   }
 
@@ -118,19 +118,19 @@
     gap: 8px;
     padding: 14px;
     background: white;
-    border-top: 1px solid var(--pink-2);
+    border-top: 1px solid #c9d6ea;
   }
   #input {
     flex: 1;
     padding: 12px 14px;
     border-radius: 24px;
-    border: 1px solid var(--pink-2);
+    border: 1px solid #c9d6ea;
     outline: none;
     font-size: 14px;
   }
-  #input:focus { border-color: var(--purple); }
+  #input:focus { border-color: var(--steel); }
   #send {
-    background: var(--pink-1);
+    background: var(--navy-1);
     border: none;
     color: white;
     width: 44px;
@@ -142,23 +142,23 @@
     align-items: center;
     justify-content: center;
   }
-  #send:hover { background: var(--purple); }
+  #send:hover { background: var(--steel); }
   #send:disabled { opacity: 0.5; cursor: default; }
 </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <div class="avatar">💕</div>
+      <div class="avatar">📊</div>
       <div class="info">
-        <h1>Amora</h1>
-        <p>your affectionate AI companion</p>
+        <h1>MarketSight</h1>
+        <p>Your strategic assistance !</p>
       </div>
       <button id="reset-btn" type="button">Reset</button>
     </header>
     <div id="messages"></div>
     <form id="chat-form">
-      <input id="input" type="text" placeholder="Say something sweet..." autocomplete="off" />
+      <input id="input" type="text" placeholder="Ask about a market trend or campaign result..." autocomplete="off" />
       <button id="send" type="submit">➤</button>
     </form>
   </div>
@@ -182,13 +182,16 @@
   function addTyping() {
     const div = document.createElement("div");
     div.className = "msg typing";
-    div.textContent = "Amora is typing...";
+    div.textContent = "MarketSight is analyzing...";
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return div;
   }
 
-  addMessage("Hi love, I'm Amora 💕 How's your day going?", "bot");
+  addMessage(
+    "Hello, I'm MarketSight — your strategic assistant. Share a market trend, campaign result, or data point and I'll break down the findings and implications.",
+    "bot"
+  );
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -225,7 +228,7 @@
   resetBtn.addEventListener("click", async () => {
     await fetch("/api/reset", { method: "POST" });
     messagesEl.innerHTML = "";
-    addMessage("Fresh start! Hi again, I'm Amora 💕", "bot");
+    addMessage("Fresh start! I'm MarketSight — ready for your next question.", "bot");
   });
 </script>
 </body>
