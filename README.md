@@ -32,3 +32,29 @@ The frontend is a single static `index.html` (no build step, no framework). A sm
 - Click "Reset" to start a new conversation.
 - MarketSight's persona is defined in `SYSTEM_PROMPT` inside `app.py` — edit it to change tone/focus.
 - Switch models anytime via the `OPENROUTER_MODEL` env var — no code changes needed.
+
+## Embedding: syncing with a dashboard's Executive Summary / Synthesis cards
+
+`POST /api/chat` accepts an optional `context` object alongside `message` so an
+embedding dashboard (e.g. the "Ask the intelligence AI" widget sitting beside
+its Executive Summary card) can keep MarketSight's answers grounded in what's
+currently on screen:
+
+```json
+{
+  "message": "What's driving the share movement?",
+  "context": {
+    "executiveSummary": "<current Executive Summary Card text>",
+    "synthesis": "<current Synthesis Card text>",
+    "filters": { "Area": "Sumatra", "Region": "Medan", "Period": "Q2 2026" }
+  }
+}
+```
+
+- `message` and `context` are both optional, but at least one must be present.
+- If `context` is sent with an empty/omitted `message`, MarketSight treats it
+  as a **resume** request: it returns a synthesized executive summary of the
+  current cards instead of erroring, and that summary seeds the session so
+  later questions in the same widget stay consistent with it.
+- The calling origin must be in `ALLOWED_ORIGINS` in `app.py` (CORS is locked
+  down to specific origins since the API key stays server-side).

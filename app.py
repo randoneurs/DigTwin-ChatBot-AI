@@ -31,14 +31,16 @@ SYSTEM_PROMPT = (
     "Customer Care, Events, Others. Under each category, list one '- ' bullet per "
     "finding, and directly below it a further-indented '- ' bullet with the "
     "supporting detail or strategic implication — a pointer under its parent "
-    "pointer, not a separate paragraph. Do not insert blank lines anywhere, not "
-    "even between categories — the category header line is itself the section "
-    "break. Follow this exact shape, with no blank lines at all:\n\n"
+    "pointer, not a separate paragraph. Put exactly one blank line before each "
+    "category header except the first — that blank line is the only section break "
+    "between categories. Never put a blank line between a category header and its "
+    "first bullet, or between any bullet and its sub-bullet. Follow this exact shape:\n\n"
     "Market\n"
     "- <finding>\n"
     "  - <supporting detail or implication>\n"
     "- <finding>\n"
     "  - <supporting detail or implication>\n"
+    "\n"
     "Network\n"
     "- <finding>\n"
     "  - <supporting detail or implication>\n\n"
@@ -53,6 +55,26 @@ MAX_HISTORY_MESSAGES = 20  # keep the last N messages (user+assistant) per sessi
 # Other sites allowed to call the API endpoints directly from the browser
 # (e.g. dashboards embedding MarketSight's "ask the AI" card).
 ALLOWED_ORIGINS = {"https://dig-twin-offline-dataset-sample.vercel.app"}
+
+
+def format_dashboard_context(context):
+    """Render the embedding dashboard's Executive Summary / Synthesis cards
+    (and any active filters) into a labeled block the model can ground on."""
+    if not context:
+        return ""
+
+    parts = []
+    if context.get("executiveSummary"):
+        parts.append("Executive Summary Card:\n" + context["executiveSummary"].strip())
+    if context.get("synthesis"):
+        parts.append("Synthesis Card:\n" + context["synthesis"].strip())
+    filters = context.get("filters")
+    if filters:
+        rendered = ", ".join(f"{k}={v}" for k, v in filters.items() if v)
+        if rendered:
+            parts.append("Active filters: " + rendered)
+
+    return "\n\n".join(parts)
 
 
 @app.after_request
@@ -78,11 +100,26 @@ def chat():
 
     data = request.get_json(silent=True) or {}
     user_message = (data.get("message") or "").strip()
-    if not user_message:
+    context_block = format_dashboard_context(data.get("context"))
+
+    if not user_message and not context_block:
         return jsonify({"error": "Message cannot be empty."}), 400
 
+    if user_message and context_block:
+        prompt = f"Dashboard context:\n{context_block}\n\n{user_message}"
+    elif context_block:
+        # No question asked — the dashboard just wants MarketSight synced with
+        # its current cards, so resume with a synthesized read of them.
+        prompt = (
+            f"Dashboard context:\n{context_block}\n\n"
+            "Give me a synthesized executive read of the current Executive "
+            "Summary and Synthesis cards — lead with what matters most right now."
+        )
+    else:
+        prompt = user_message
+
     history = session.get("history", [])
-    history.append({"role": "user", "content": user_message})
+    history.append({"role": "user", "content": prompt})
     history = history[-MAX_HISTORY_MESSAGES:]
 
     completion = client.chat.completions.create(
