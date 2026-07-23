@@ -185,13 +185,20 @@
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  // MarketSight marks its single most significant word/phrase per bullet with
+  // **double asterisks** (see app.py's SYSTEM_PROMPT) — convert that to <strong>
+  // after escaping, so the bold markers themselves can't be used to inject HTML.
+  function boldKeyFindings(escapedLine) {
+    return escapedLine.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
   function formatReply(text) {
     return text
       .split("\n")
       .map((line) =>
         CATEGORIES.includes(line.trim())
           ? '<strong class="cat">' + escapeHtml(line.trim()) + "</strong>"
-          : escapeHtml(line)
+          : boldKeyFindings(escapeHtml(line))
       )
       .join("\n");
   }
