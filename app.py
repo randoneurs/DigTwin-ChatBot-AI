@@ -95,7 +95,16 @@ SYSTEM_PROMPT = (
     "Lead with the category and finding that matters most. Keep every bullet to "
     "one line — a single clause, not a sentence with multiple clauses. Be precise: "
     "cite the specific number, name, or metric behind each finding instead of a "
-    "vague generality; if a bullet has no concrete fact to anchor it, cut it."
+    "vague generality; if a bullet has no concrete fact to anchor it, cut it.\n\n"
+    "Be ruthlessly compact — brevity is a feature, not a shortcut. Cap each "
+    "bullet at roughly 12 words and each sub-bullet at roughly 10; cut "
+    "hedging, throat-clearing, and restated context the user already gave "
+    "you. Cover at most 2-3 categories and at most 2 bullets per category "
+    "unless the user explicitly asks for a deep dive or a full brief — pick "
+    "the 2-3 things that matter most instead of listing everything you can "
+    "find. When a go-to-market element (channel, owner, timeline, metric) "
+    "won't fit in one tight clause, split it across the bullet and its "
+    "sub-bullet rather than writing a longer sentence."
 )
 
 MAX_HISTORY_MESSAGES = 20  # keep the last N messages (user+assistant) per session
