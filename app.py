@@ -179,15 +179,23 @@ def chat():
     history.append({"role": "user", "content": prompt})
     history = history[-MAX_HISTORY_MESSAGES:]
 
-    completion = client.chat.completions.create(
-        model=MODEL,
-        max_tokens=1024,
-        messages=[{"role": "system", "content": SYSTEM_PROMPT}] + history,
-        extra_headers={
-            "HTTP-Referer": "http://localhost:5000",
-            "X-Title": "MarketSight",
-        },
-    )
+    # TEMPORARY: /api/chat has been returning a bare 500 with no detail —
+    # surface the actual exception so the failure (bad/expired key, quota,
+    # invalid model slug, etc.) is visible in the response instead of hidden
+    # behind Flask's generic error page. Remove this try/except once the
+    # root cause is found and fixed.
+    try:
+        completion = client.chat.completions.create(
+            model=MODEL,
+            max_tokens=1024,
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + history,
+            extra_headers={
+                "HTTP-Referer": "http://localhost:5000",
+                "X-Title": "MarketSight",
+            },
+        )
+    except Exception as exc:  # noqa: BLE001 - diagnostic only, see comment above
+        return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 502
 
     reply_text = completion.choices[0].message.content or ""
 
